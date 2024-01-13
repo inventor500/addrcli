@@ -31,7 +31,7 @@ func get_args() *Arguments {
 
 	if len(os.Args) < 2 {
 		fmt.Println("Copyright (C) 2024 Isaac Ganoung.")
-		fmt.Printf("Usage: %s address|zip [arg0...argn]\n", os.Args[0])
+		fmt.Printf("Usage: %s address|zip|city [arg0...argn]\n", os.Args[0])
 		os.Exit(1)
 	}
 
@@ -119,7 +119,7 @@ func main() {
 			}
 			if len(result.NonAccept) > 0 {
 				fmt.Printf("\n\033[1m%d Not Accepted Cities\033[0m\n", len(result.NonAccept))
-				for i := 0; i < len(result.OtherCities); i++ {
+				for i := 0; i < len(result.NonAccept); i++ {
 					fmt.Println(result.NonAccept[i])
 				}
 			}
