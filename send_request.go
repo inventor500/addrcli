@@ -54,6 +54,17 @@ func zipQuery(city string, state string) (*ZipQueryResult, error) {
 	return checkResult[ZipQueryResult](res, err)
 }
 
+func cityQuery(zip string) (*CityQueryResult, error) {
+	data := url.Values{
+		"zip": {zip},
+	}
+	client := http.Client{}
+	req, _ := http.NewRequest("POST", BaseQueryURL+"cityByZip", strings.NewReader(data.Encode()))
+	addHeaders(req, BaseFormURL+"citybyzipcode")
+	res, err := client.Do(req)
+	return checkResult[CityQueryResult](res, err)
+}
+
 func addHeaders(req *http.Request, referer string) {
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; rv:109.0) Gecko/20100101 Firefox/115.0")
 	req.Header.Set("Accept", "application/json, text/javascript")
@@ -65,7 +76,7 @@ func addHeaders(req *http.Request, referer string) {
 	req.Header.Set("X-Requested-With", "XMLHttpRequest")
 }
 
-func checkResult[Result ZipQueryResult | AddressQueryResult](response *http.Response, err error) (*Result, error) {
+func checkResult[Result ZipQueryResult | AddressQueryResult | CityQueryResult](response *http.Response, err error) (*Result, error) {
 	var result Result
 	if err != nil {
 		return &result, errors.New(fmt.Sprintf("Error sending request: %s", err))

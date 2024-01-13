@@ -92,3 +92,27 @@ type AddressQueryResult struct {
 func (result AddressQueryResult) String() string {
 	return fmt.Sprintf("%s: %s", result.Status, result.Addresses)
 }
+
+// Athens, GR
+type CityState struct {
+	City  string `json:"city"`
+	State string `json:"state"`
+}
+
+func (citystate CityState) String() string {
+	return fmt.Sprintf("%s, %s", citystate.City, citystate.State)
+}
+
+type CityQueryResult struct {
+	Status      string      `json:"resultStatus"`
+	City        string      `json:"defaultCity"`
+	State       string      `json:"defaultState"`
+	Zip         string      `json:"zip5"`
+	Caveat      string      `json:"defaultRecordType"`
+	OtherCities []CityState `json:"citiesList"`
+	NonAccept   []CityState `json:"nonAcceptList"`
+}
+
+func (result CityQueryResult) String() string {
+	return fmt.Sprintf("%s: %s, %s %s (%d alternatives, %d non-accepts)", result.Status, result.City, result.State, result.Zip, len(result.OtherCities), len(result.NonAccept))
+}

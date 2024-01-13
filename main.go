@@ -25,8 +25,9 @@ type Arguments struct {
 
 // Parse command-line arguments
 func get_args() *Arguments {
-	address := flag.NewFlagSet("address", flag.ExitOnError)
-	zip := flag.NewFlagSet("zip", flag.ExitOnError)
+	addressFlag := flag.NewFlagSet("address", flag.ExitOnError)
+	zipFlag := flag.NewFlagSet("zip", flag.ExitOnError)
+	cityFlag := flag.NewFlagSet("city", flag.ExitOnError)
 
 	if len(os.Args) < 2 {
 		fmt.Println("Copyright (C) 2024 Isaac Ganoung.")
@@ -36,30 +37,36 @@ func get_args() *Arguments {
 
 	switch os.Args[1] {
 	case "address":
-		company := address.String("company", "", "Company")
-		address1 := address.String("address1", "", "Address line 1")
-		address2 := address.String("address2", "", "Address line 2")
-		city := address.String("city", "", "City")
-		state := address.String("state", "", "State")
-		zip := address.String("zip", "", "Zip")
-		address.Parse(os.Args[2:])
-		address_map := make(map[string]string)
-		address_map["company"] = *company
-		address_map["address1"] = *address1
-		address_map["address2"] = *address2
-		address_map["city"] = *city
-		address_map["state"] = *state
-		address_map["zip"] = *zip
-		return &Arguments{"address", address_map}
+		company := addressFlag.String("company", "", "Company")
+		address1 := addressFlag.String("address1", "", "Address line 1")
+		address2 := addressFlag.String("address2", "", "Address line 2")
+		city := addressFlag.String("city", "", "City")
+		state := addressFlag.String("state", "", "State")
+		zip := addressFlag.String("zip", "", "Zip")
+		addressFlag.Parse(os.Args[2:])
+		addressMap := make(map[string]string)
+		addressMap["company"] = *company
+		addressMap["address1"] = *address1
+		addressMap["address2"] = *address2
+		addressMap["city"] = *city
+		addressMap["state"] = *state
+		addressMap["zip"] = *zip
+		return &Arguments{"address", addressMap}
 		// return &Arguments{"address", }
 	case "zip":
-		city := zip.String("city", "", "City")
-		state := zip.String("state", "", "State")
-		zip.Parse(os.Args[2:])
-		zip_map := make(map[string]string)
-		zip_map["city"] = *city
-		zip_map["state"] = *state
-		return &Arguments{"zip", zip_map}
+		city := zipFlag.String("city", "", "City")
+		state := zipFlag.String("state", "", "State")
+		zipFlag.Parse(os.Args[2:])
+		zipMap := make(map[string]string)
+		zipMap["city"] = *city
+		zipMap["state"] = *state
+		return &Arguments{"zip", zipMap}
+	case "city":
+		zip := cityFlag.String("zip", "", "Zip 5")
+		cityFlag.Parse(os.Args[2:])
+		cityMap := make(map[string]string)
+		cityMap["zip"] = *zip
+		return &Arguments{"city", cityMap}
 	default:
 		fmt.Printf("Unsupported search type %s\n", os.Args[1])
 		os.Exit(1)
@@ -91,6 +98,29 @@ func main() {
 			} else {
 				for i := 0; i < len(result.Addresses); i++ {
 					fmt.Println(result.Addresses[i].StringFormatted())
+				}
+			}
+		}
+	case "city":
+		result, err := cityQuery(arguments.Args["zip"])
+		if err == nil {
+			fmt.Printf("\033[1m%s\033[0m\n", arguments.Args["zip"])
+			fmt.Printf("%s, %s %s", result.City, result.State, result.Zip)
+			if result.Caveat != "" {
+				fmt.Printf(" (%s)\n", result.Caveat)
+			} else {
+				fmt.Println("")
+			}
+			if len(result.OtherCities) > 0 {
+				fmt.Printf("\n\033[1m%d Other Cities\033[0m\n", len(result.OtherCities))
+				for i := 0; i < len(result.OtherCities); i++ {
+					fmt.Println(result.OtherCities[i])
+				}
+			}
+			if len(result.NonAccept) > 0 {
+				fmt.Printf("\n\033[1m%d Not Accepted Cities\033[0m\n", len(result.NonAccept))
+				for i := 0; i < len(result.OtherCities); i++ {
+					fmt.Println(result.NonAccept[i])
 				}
 			}
 		}
