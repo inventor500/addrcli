@@ -12,7 +12,10 @@
 
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type Zip struct {
 	Zip5   string `json:"zip5"`
@@ -26,13 +29,66 @@ func (zip Zip) String() string {
 	return fmt.Sprintf("%s (%s)", zip.Zip5, zip.Caveat)
 }
 
-type QueryResult struct {
+type ZipQueryResult struct {
 	Status string `json:"resultStatus"`
 	City   string `json:"city"`
 	State  string `json:"state"`
 	Zips   []Zip  `json:"zipList"`
 }
 
-func (result QueryResult) String() string {
+func (result ZipQueryResult) String() string {
 	return fmt.Sprintf("%s, %s: %s", result.City, result.State, result.Zips)
+}
+
+type Address struct {
+	Company  string `json:"companyName"`
+	Address1 string `json:"addressLine1"`
+	Address2 string `json:"addressLine2"`
+	City     string `json:"city"`
+	State    string `json:"state"`
+	Zip5     string `json:"zip5"`
+	Zip4     string `json:"zip4"`
+	County   string `json:"countyName"`
+}
+
+func (address Address) String() string {
+	var result strings.Builder
+	if address.Company != "" {
+		result.WriteString(fmt.Sprintf("%s, ", address.Company))
+	}
+	result.WriteString(fmt.Sprintf("%s, ", address.Address1))
+	if address.Address2 != "" {
+		result.WriteString(fmt.Sprintf("%s, ", address.Address2))
+	}
+	result.WriteString(fmt.Sprintf("%s, %s %s", address.City, address.State, address.Zip5))
+	if address.Zip4 != "" {
+		result.WriteString(fmt.Sprintf("-%s", address.Zip4))
+	}
+	return result.String()
+}
+
+// The same as String, but with new lines
+func (address Address) StringFormatted() string {
+	var result strings.Builder
+	if address.Company != "" {
+		result.WriteString(fmt.Sprintf("%s\n", address.Company))
+	}
+	result.WriteString(fmt.Sprintf("%s\n", address.Address1))
+	if address.Address2 != "" {
+		result.WriteString(fmt.Sprintf("%s\n", address.Address2))
+	}
+	result.WriteString(fmt.Sprintf("%s, %s %s", address.City, address.State, address.Zip5))
+	if address.Zip4 != "" {
+		result.WriteString(fmt.Sprintf("-%s\n", address.Zip4))
+	}
+	return result.String()
+}
+
+type AddressQueryResult struct {
+	Status    string    `json:"resultStatus"`
+	Addresses []Address `json:"addressList"`
+}
+
+func (result AddressQueryResult) String() string {
+	return fmt.Sprintf("%s: %s", result.Status, result.Addresses)
 }
