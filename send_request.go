@@ -21,7 +21,38 @@ import (
 	"strings"
 )
 
-const BaseURL = "https://tools.usps.com/tools/app/ziplookup/"
+const BaseQueryURL = "https://tools.usps.com/tools/app/ziplookup/"
+const BaseFormURL = "https://tools.usps.com/zip-code-lookup.htm?"
+
+func addressQuery(company string, address1 string, address2 string, city string, state string, zip string) (*AddressQueryResult, error) {
+	// The website sends all of these parameters, even when not provided by the user
+	data := url.Values{
+		"companyName": {company},
+		"address1":    {address1},
+		"address2":    {address2},
+		"city":        {city},
+		"state":       {state},
+		"zip":         {zip},
+		"urbanCode":   {""}, // TODO: What does this actually do?
+	}
+	client := http.Client{}
+	req, _ := http.NewRequest("POST", BaseQueryURL+"zipByAddress", strings.NewReader(data.Encode()))
+	addHeaders(req, BaseFormURL+"byaddress")
+	res, err := client.Do(req)
+	return checkResult[AddressQueryResult](res, err)
+}
+
+func zipQuery(city string, state string) (*ZipQueryResult, error) {
+	data := url.Values{
+		"city":  {city},
+		"state": {state},
+	}
+	client := http.Client{}
+	req, _ := http.NewRequest("POST", BaseQueryURL+"zipByCityState", strings.NewReader(data.Encode()))
+	addHeaders(req, BaseFormURL+"bycitystate")
+	res, err := client.Do(req)
+	return checkResult[ZipQueryResult](res, err)
+}
 
 func addHeaders(req *http.Request, referer string) {
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; rv:109.0) Gecko/20100101 Firefox/115.0")
@@ -34,55 +65,16 @@ func addHeaders(req *http.Request, referer string) {
 	req.Header.Set("X-Requested-With", "XMLHttpRequest")
 }
 
-// TODO: Address query
-
-func zipQuery(city string, state string) (*ZipQueryResult, error) {
-	data := url.Values{
-		"city":  {city},
-		"state": {state},
-	}
-	client := http.Client{}
-	req, _ := http.NewRequest("POST", BaseURL+"zipByCityState", strings.NewReader(data.Encode()))
-	addHeaders(req, "https://tools.usps.com/zip-code-lookup.htm?bycitystate")
-	res, err := client.Do(req)
-	if err != nil {
-		return &ZipQueryResult{}, errors.New(fmt.Sprintf("Error sending request: %s", err))
-	}
-	defer res.Body.Close()
-	if res.StatusCode != 200 {
-		return &ZipQueryResult{}, errors.New(fmt.Sprintf("Invalid status code: %d", res.StatusCode))
-	}
-	var result ZipQueryResult
-	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
-		return &ZipQueryResult{}, errors.New(fmt.Sprintf("Error decoding result: %s", err))
-	}
-	return &result, nil
-}
-
-func addressQuery(company string, address1 string, address2 string, city string, state string, zip string) (*AddressQueryResult, error) {
-	data := url.Values{
-		"companyName": {company},
-		"address1":    {address1},
-		"address2":    {address2},
-		"city":        {city},
-		"state":       {state},
-		"zip":         {zip},
-		"urbanCode":   {""}, // TODO: What does this actually do?
-	}
-	client := http.Client{}
-	req, _ := http.NewRequest("POST", BaseURL+"zipByAddress", strings.NewReader(data.Encode()))
-	addHeaders(req, "https://tools.usps.com/zip-code-lookup.htm?byaddress")
-	res, err := client.Do(req)
-	var result AddressQueryResult
+func checkResult[Result ZipQueryResult | AddressQueryResult](response *http.Response, err error) (*Result, error) {
+	var result Result
 	if err != nil {
 		return &result, errors.New(fmt.Sprintf("Error sending request: %s", err))
 	}
-	defer res.Body.Close()
-	if res.StatusCode != 200 {
-		return &result, errors.New(fmt.Sprintf("Invalid status code: %d", res.StatusCode))
-	}
-	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
-		return &AddressQueryResult{}, errors.New(fmt.Sprintf("Error decoding result: %s", err))
+	defer response.Body.Close()
+	if response.StatusCode != 200 {
+		return &result, errors.New(fmt.Sprintf("Invalid status code: %d", response.StatusCode))
+	} else if err := json.NewDecoder(response.Body).Decode(&result); err != nil {
+		return &result, errors.New(fmt.Sprintf("Error decoding result: %s", err))
 	}
 	return &result, nil
 }
