@@ -42,6 +42,17 @@ func addressQuery(company string, address1 string, address2 string, city string,
 	return checkResult[AddressQueryResult](res, err)
 }
 
+func cityQuery(zip string) (*CityQueryResult, error) {
+	data := url.Values{
+		"zip": {zip},
+	}
+	client := http.Client{}
+	req, _ := http.NewRequest("POST", BaseQueryURL+"cityByZip", strings.NewReader(data.Encode()))
+	addHeaders(req, BaseFormURL+"citybyzipcode")
+	res, err := client.Do(req)
+	return checkResult[CityQueryResult](res, err)
+}
+
 func zipQuery(city string, state string) (*ZipQueryResult, error) {
 	data := url.Values{
 		"city":  {city},
@@ -52,17 +63,6 @@ func zipQuery(city string, state string) (*ZipQueryResult, error) {
 	addHeaders(req, BaseFormURL+"bycitystate")
 	res, err := client.Do(req)
 	return checkResult[ZipQueryResult](res, err)
-}
-
-func cityQuery(zip string) (*CityQueryResult, error) {
-	data := url.Values{
-		"zip": {zip},
-	}
-	client := http.Client{}
-	req, _ := http.NewRequest("POST", BaseQueryURL+"cityByZip", strings.NewReader(data.Encode()))
-	addHeaders(req, BaseFormURL+"citybyzipcode")
-	res, err := client.Do(req)
-	return checkResult[CityQueryResult](res, err)
 }
 
 func addHeaders(req *http.Request, referer string) {

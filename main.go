@@ -31,7 +31,7 @@ func get_args() *Arguments {
 
 	if len(os.Args) < 2 {
 		fmt.Println("Copyright (C) 2024 Isaac Ganoung.")
-		fmt.Printf("Usage: %s address|zip|city [arg0...argn]\n", os.Args[0])
+		fmt.Printf("Usage: %s address|city|zip [arg0...argn]\n", os.Args[0])
 		os.Exit(1)
 	}
 
@@ -52,7 +52,12 @@ func get_args() *Arguments {
 		addressMap["state"] = *state
 		addressMap["zip"] = *zip
 		return &Arguments{"address", addressMap}
-		// return &Arguments{"address", }
+	case "city":
+		zip := cityFlag.String("zip", "", "Zip 5")
+		cityFlag.Parse(os.Args[2:])
+		cityMap := make(map[string]string)
+		cityMap["zip"] = *zip
+		return &Arguments{"city", cityMap}
 	case "zip":
 		city := zipFlag.String("city", "", "City")
 		state := zipFlag.String("state", "", "State")
@@ -61,12 +66,7 @@ func get_args() *Arguments {
 		zipMap["city"] = *city
 		zipMap["state"] = *state
 		return &Arguments{"zip", zipMap}
-	case "city":
-		zip := cityFlag.String("zip", "", "Zip 5")
-		cityFlag.Parse(os.Args[2:])
-		cityMap := make(map[string]string)
-		cityMap["zip"] = *zip
-		return &Arguments{"city", cityMap}
+
 	default:
 		fmt.Printf("Unsupported search type %s\n", os.Args[1])
 		os.Exit(1)
@@ -77,18 +77,6 @@ func get_args() *Arguments {
 func main() {
 	arguments := get_args()
 	switch arguments.Subcommand {
-	case "zip":
-		result, err := zipQuery(arguments.Args["city"], arguments.Args["state"])
-		if err == nil {
-			fmt.Printf("\033[1m%s, %s\033[0m\n", result.City, result.State)
-			if len(result.Zips) == 0 {
-				fmt.Println("No results were found.")
-			} else {
-				for i := 0; i < len(result.Zips); i++ {
-					fmt.Println(result.Zips[i])
-				}
-			}
-		}
 	case "address":
 		result, err := addressQuery(arguments.Args["company"], arguments.Args["address1"], arguments.Args["address2"], arguments.Args["city"], arguments.Args["state"], arguments.Args["zip"])
 		if err == nil {
@@ -121,6 +109,18 @@ func main() {
 				fmt.Printf("\n\033[1m%d Not Accepted Cities\033[0m\n", len(result.NonAccept))
 				for i := 0; i < len(result.NonAccept); i++ {
 					fmt.Println(result.NonAccept[i])
+				}
+			}
+		}
+	case "zip":
+		result, err := zipQuery(arguments.Args["city"], arguments.Args["state"])
+		if err == nil {
+			fmt.Printf("\033[1m%s, %s\033[0m\n", result.City, result.State)
+			if len(result.Zips) == 0 {
+				fmt.Println("No results were found.")
+			} else {
+				for i := 0; i < len(result.Zips); i++ {
+					fmt.Println(result.Zips[i])
 				}
 			}
 		}

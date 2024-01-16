@@ -17,29 +17,6 @@ import (
 	"strings"
 )
 
-type Zip struct {
-	Zip5   string `json:"zip5"`
-	Caveat string `json:"recordType"`
-}
-
-func (zip Zip) String() string {
-	if zip.Caveat == "" {
-		return zip.Zip5
-	}
-	return fmt.Sprintf("%s (%s)", zip.Zip5, zip.Caveat)
-}
-
-type ZipQueryResult struct {
-	Status string `json:"resultStatus"`
-	City   string `json:"city"`
-	State  string `json:"state"`
-	Zips   []Zip  `json:"zipList"`
-}
-
-func (result ZipQueryResult) String() string {
-	return fmt.Sprintf("%s, %s: %s", result.City, result.State, result.Zips)
-}
-
 type Address struct {
 	Company  string `json:"companyName"`
 	Address1 string `json:"addressLine1"`
@@ -115,4 +92,27 @@ type CityQueryResult struct {
 
 func (result CityQueryResult) String() string {
 	return fmt.Sprintf("%s: %s, %s %s (%d alternatives, %d non-accepts)", result.Status, result.City, result.State, result.Zip, len(result.OtherCities), len(result.NonAccept))
+}
+
+type Zip struct {
+	Zip5   string `json:"zip5"`
+	Caveat string `json:"recordType"`
+}
+
+func (zip Zip) String() string {
+	if zip.Caveat == "" {
+		return zip.Zip5
+	}
+	return fmt.Sprintf("%s (%s)", zip.Zip5, zip.Caveat)
+}
+
+type ZipQueryResult struct {
+	Status string `json:"resultStatus"`
+	City   string `json:"city"`
+	State  string `json:"state"`
+	Zips   []Zip  `json:"zipList"`
+}
+
+func (result ZipQueryResult) String() string {
+	return fmt.Sprintf("%s, %s: %s", result.City, result.State, result.Zips)
 }
