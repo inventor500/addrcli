@@ -88,6 +88,8 @@ func main() {
 					fmt.Println(result.Addresses[i].StringFormatted())
 				}
 			}
+		} else {
+			print_error(err)
 		}
 	case "city":
 		result, err := cityQuery(arguments.Args["zip"])
@@ -111,6 +113,8 @@ func main() {
 					fmt.Println(result.NonAccept[i])
 				}
 			}
+		} else {
+			print_error(err)
 		}
 	case "zip":
 		result, err := zipQuery(arguments.Args["city"], arguments.Args["state"])
@@ -123,6 +127,12 @@ func main() {
 					fmt.Println(result.Zips[i])
 				}
 			}
+		} else {
+			print_error(err)
 		}
 	}
+}
+
+func print_error(err error) {
+	fmt.Printf("\033[91;1m%s\033[0m\n", err)
 }

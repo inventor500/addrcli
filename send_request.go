@@ -79,7 +79,7 @@ func addHeaders(req *http.Request, referer string) {
 func checkResult[Result ZipQueryResult | AddressQueryResult | CityQueryResult](response *http.Response, err error) (*Result, error) {
 	var result Result
 	if err != nil {
-		return &result, errors.New(fmt.Sprintf("Error sending request: %s", err))
+		return &result, err
 	}
 	defer response.Body.Close()
 	if response.StatusCode != 200 {
