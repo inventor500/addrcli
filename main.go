@@ -71,7 +71,18 @@ func get_args() *Arguments {
 		fmt.Printf("Unsupported search type %s\n", os.Args[1])
 		os.Exit(1)
 	}
-	return &Arguments{} // TOOD: Why does the compiler require this?
+	return &Arguments{} // TODO: Why does the compiler require this?
+}
+
+func isTerminal() bool {
+	stat, _ := os.Stdout.Stat()
+	return ((stat.Mode() & os.ModeCharDevice) == os.ModeCharDevice)
+}
+
+var IsTerminal bool
+
+func init() {
+	IsTerminal = isTerminal()
 }
 
 func main() {
@@ -80,53 +91,21 @@ func main() {
 	case "address":
 		result, err := addressQuery(arguments.Args["company"], arguments.Args["address1"], arguments.Args["address2"], arguments.Args["city"], arguments.Args["state"], arguments.Args["zip"])
 		if err == nil {
-			fmt.Printf("\033[1m%s, %s %s\033[0m\n", arguments.Args["city"], arguments.Args["state"], arguments.Args["zip"])
-			if len(result.Addresses) == 0 {
-				fmt.Println("No results were found.")
-			} else {
-				for i := 0; i < len(result.Addresses); i++ {
-					fmt.Println(result.Addresses[i].StringFormatted())
-				}
-			}
+			fmt.Println(result.StringFormatted(IsTerminal))
 		} else {
 			print_error(err)
 		}
 	case "city":
 		result, err := cityQuery(arguments.Args["zip"])
 		if err == nil {
-			fmt.Printf("\033[1m%s\033[0m\n", arguments.Args["zip"])
-			fmt.Printf("%s, %s %s", result.City, result.State, result.Zip)
-			if result.Caveat != "" {
-				fmt.Printf(" (%s)\n", result.Caveat)
-			} else {
-				fmt.Println("")
-			}
-			if len(result.OtherCities) > 0 {
-				fmt.Printf("\n\033[1m%d Other Cities\033[0m\n", len(result.OtherCities))
-				for i := 0; i < len(result.OtherCities); i++ {
-					fmt.Println(result.OtherCities[i])
-				}
-			}
-			if len(result.NonAccept) > 0 {
-				fmt.Printf("\n\033[1m%d Not Accepted Cities\033[0m\n", len(result.NonAccept))
-				for i := 0; i < len(result.NonAccept); i++ {
-					fmt.Println(result.NonAccept[i])
-				}
-			}
+			fmt.Println(result.StringFormatted(IsTerminal))
 		} else {
 			print_error(err)
 		}
 	case "zip":
 		result, err := zipQuery(arguments.Args["city"], arguments.Args["state"])
 		if err == nil {
-			fmt.Printf("\033[1m%s, %s\033[0m\n", result.City, result.State)
-			if len(result.Zips) == 0 {
-				fmt.Println("No results were found.")
-			} else {
-				for i := 0; i < len(result.Zips); i++ {
-					fmt.Println(result.Zips[i])
-				}
-			}
+			fmt.Println(result.StringFormatted(IsTerminal))
 		} else {
 			print_error(err)
 		}
