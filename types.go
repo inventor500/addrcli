@@ -123,13 +123,13 @@ func (result CityQueryResult) String() string {
 
 func (res CityQueryResult) StringFormatted(colored bool) string {
 	if res.Status != "SUCCESS" {
-		return Sprintf("No results\n", colored)
+		return Sprintf("No results", colored)
 	}
 	var resultString strings.Builder
 	resultString.WriteString(Sprintf("%s\n", colored, res.Zip))
 	resultString.WriteString(fmt.Sprintf("%s, %s %s", res.City, res.State, res.Zip))
 	if res.Caveat != "" {
-		resultString.WriteString(fmt.Sprintf("(%s)", res.Caveat))
+		resultString.WriteString(fmt.Sprintf(" (%s)", res.Caveat))
 	}
 	if len(res.OtherCities) > 0 {
 		resultString.WriteString(Sprintf("\n\n%d Other Cities", colored, len(res.OtherCities)))
