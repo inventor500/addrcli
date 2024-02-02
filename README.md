@@ -1,9 +1,9 @@
-# get-zip
+# addrcli
 
-This is a simple program that retrieves the list of possible zip codes for a given city / state combination. It uses the USPS website as a back end.
+This is a simple program that retrieves the list of possible zip codes for a given city / state combination.
 
+This program uses the USPS website as a back end, and thus (probably) only works for addresses in the United States.
 
-All data retrieved is subject to the license granted by the USPS web site, <https://about.usps.com/who/legal/terms-of-use.htm>.
 
 ## Usage
 
@@ -16,7 +16,7 @@ There are six possible flags for this query: `company`, `address1`, `address2`, 
 
 Example usage:
 ```shell
-$ get-zip address --address1 '620 Eighth Avenue' --city "New York" --state "NY"
+$ addrcli address --address1 '620 Eighth Avenue' --city "New York" --state "NY"
 # New York, NY 
 # 620 8TH AVE
 # NEW YORK, NY 10018-1618
@@ -30,7 +30,7 @@ There is one possible flag for this query: `zip`. This is the 5 digit zip code f
 
 Example usage:
 ```shell
-$ get-zip city --zip 10018
+$ addrcli city --zip 10018
 # 10018
 # NEW YORK, NY 10018 (STANDARD)
 #
@@ -49,7 +49,7 @@ There are two possible flags for this query: `city` and `state`.
 
 Example usage:
 ```shell
-$ get-zip zip --city "New York" --state NY
+$ addrcli zip --city "New York" --state NY
 # NEW YORK, NY
 # 10001
 # 10002
